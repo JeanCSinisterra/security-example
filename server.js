@@ -7,7 +7,6 @@ const passport = require('passport');
 const { Strategy } = require('passport-google-oauth20');
 const cookieSession = require('cookie-session');
 const { verify } = require('crypto');
-
 require('dotenv').config();
 
 const PORT = process.env.PORT;
@@ -39,9 +38,9 @@ passport.serializeUser((user, done) => {
 
 // Read the session from the cookie
 passport.deserializeUser((id, done) => {
-  // User.findById(id).then(user => {
-  //   done(null, user);
-  // });
+  User.findById(id).then(user => {
+    done(null, user);
+  });
   done(null, id);
 });
 
@@ -54,6 +53,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000,
   keys: [ config.COOKIE_KEY_1, config.COOKIE_KEY_2 ],
 }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -77,7 +77,7 @@ app.get('/auth/google/callback',
   passport.authenticate('google', {
     failureRedirect: '/failure',
     successRedirect: '/',
-    session: true,
+    session: false,
   }), 
   (req, res) => {
     console.log('Google called us back!');
